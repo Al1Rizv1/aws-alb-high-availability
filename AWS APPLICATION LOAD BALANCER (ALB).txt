@@ -1,0 +1,53 @@
+AWS APPLICATION LOAD BALANCER (ALB) DEPLOYMENT & TROUBLESHOOTING GUIDE
+=======================================================================
+
+1. USER DATA BOOTSTRAP SCRIPTS
+-----------------------------------------------------------------------
+[Server 1 - Blue Page]
+#!/bin/bash
+dnf update -y
+dnf install httpd -y
+systemctl start httpd
+systemctl enable httpd
+echo '<!DOCTYPE html><html><body style="background-color:blue;color:white;text-align:center;font-family:sans-serif;padding-top:50px;"><h1>Server 1 – Blue Page</h1><p>Running on EC2 Instance 1</p></body></html>' > /var/www/html/index.html
+
+[Server 2 - Green Page]
+#!/bin/bash
+dnf update -y
+dnf install httpd -y
+systemctl start httpd
+systemctl enable httpd
+echo '<!DOCTYPE html><html><body style="background-color:green;color:white;text-align:center;font-family:sans-serif;padding-top:50px;"><h1>Server 2 – Green Page</h1><p>Running on EC2 Instance 2</p></body></html>' > /var/www/html/index.html
+
+
+2. HELPFUL CLI COMMANDS FOR TROUBLESHOOTING
+-----------------------------------------------------------------------
+# Check Apache Service Status
+sudo systemctl status httpd
+
+# Verify Local Web Server Response & Headers
+curl -I http://localhost
+
+# Overwrite / Update HTML Content Live
+echo '<!DOCTYPE html><html><body style="background-color:blue;color:white;text-align:center;font-family:sans-serif;"><h1>Server 1 – Updated</h1></body></html>' | sudo tee /var/www/html/index.html
+
+
+3. SECURITY GROUP CONFIGURATION SUMMARY
+-----------------------------------------------------------------------
+A. ALB Security Group (alb-sg)
+   - Inbound Rule: Custom TCP / HTTP (80) | Source: Anywhere-IPv4 (0.0.0.0/0)
+
+B. Web Server Security Group (web-server-sg)
+   - Inbound Rule: Custom TCP / HTTP (80) | Source: alb-sg (Security Group ID)
+   - Inbound Rule: SSH (22)              | Source: My IP
+
+
+4. GIT & GITHUB COMMANDS TO PUSH REPOSITORY
+-----------------------------------------------------------------------
+cd aws-application-load-balancer
+git init
+git add .
+git commit -m "feat: initial commit for AWS Application Load Balancer project"
+git branch -M main
+git remote add origin https://github.com/Al1Rizv1/aws-application-load-balancer.git
+git push -u origin main
